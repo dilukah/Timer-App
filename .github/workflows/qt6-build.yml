@@ -18,10 +18,10 @@ jobs:
 
       # Set up MSYS2 (for MinGW and Qt)
       - name: Set up MSYS2 and install dependencies
-        uses: msys2/setup-msys2-action@v2
+        uses: msys2/setup-msys2-action@v2.22.0
         with:
-          msys2_version: '20210725'  # Specific MSYS2 version
-          install_packages: 'mingw-w64-x86_64-qt6 mingw-w64-x86_64-cmake'  # Install Qt6 and CMake
+          update: true
+          install: mingw-w64-x86_64-qt6 mingw-w64-x86_64-cmake
           
       # Set up Qt6 for MinGW (specific version)
       - name: Set up Qt6 environment
