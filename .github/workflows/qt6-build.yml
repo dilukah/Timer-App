@@ -1,0 +1,59 @@
+name: Build and Test Qt6 Project
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      # Checkout the code
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Set up MSYS2 (for MinGW and Qt)
+      - name: Set up MSYS2 and install dependencies
+        uses: msys2/setup-msys2-action@v2
+        with:
+          msys2_version: '20210725'  # Specific MSYS2 version
+          install_packages: 'mingw-w64-x86_64-qt6 mingw-w64-x86_64-cmake'  # Install Qt6 and CMake
+          
+      # Set up Qt6 for MinGW (specific version)
+      - name: Set up Qt6 environment
+        shell: bash
+        run: |
+          echo "Setting up Qt6 environment"
+          export PATH=/mingw64/bin:$PATH
+          echo "Qt6 installed: $(qmake --version)"
+          
+      # Configure the CMake build
+      - name: Configure the CMake build
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G "MinGW Makefiles"
+          
+      # Build the project
+      - name: Build the project
+        run: |
+          cd build
+          mingw32-make
+
+      # Run the tests 
+      - name: Run unit tests
+        run: |
+          cd build
+          mingw32-make test
+
+      # Upload test results as an artifact
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: build/test_results
